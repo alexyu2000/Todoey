@@ -9,7 +9,7 @@
 import UIKit
 import RealmSwift
 
-class TodoListViewController: UITableViewController {
+class TodoListViewController: SwipeTableViewController {
 
     //var itemArray = ["Find Mike", "Buy Eggos", "Destory Demogotgon"]
     var todoItems : Results<Item>?
@@ -26,10 +26,6 @@ class TodoListViewController: UITableViewController {
         super.viewDidLoad()
         let dataFilePath = FileManager.default.urls(for: .documentDirectory, in: .userDomainMask).first?.appendingPathComponent("Items.plist")
         print(dataFilePath!)
-        
-//        //searchBar.delegate = self
-//        let request : NSFetchRequest<Item> = Item.fetchRequest()
-//        loadItems(with: request)
     }
     
     //MARK - TableView Datasource Methods
@@ -40,8 +36,8 @@ class TodoListViewController: UITableViewController {
     
     override func tableView(_ tableView: UITableView, cellForRowAt indexPath: IndexPath) -> UITableViewCell {
         
-        let cell = tableView.dequeueReusableCell(withIdentifier: "ToDoItemCell", for: indexPath)
-        //cell.textLabel?.text = itemArray[indexPath.row]
+        //let cell = tableView.dequeueReusableCell(withIdentifier: "Cell", for: indexPath)
+        let cell = super.tableView(tableView, cellForRowAt: indexPath)
         
         if let item = todoItems?[indexPath.row] {
             cell.textLabel?.text = item.title
@@ -51,6 +47,7 @@ class TodoListViewController: UITableViewController {
         }
         return cell
     }
+    
     
     //MARK - TableView Delegate Method
     
@@ -69,6 +66,19 @@ class TodoListViewController: UITableViewController {
         
         tableView.reloadData()
         tableView.deselectRow(at: indexPath, animated: true)
+    }
+    
+    
+    override func updateModel(at indexPath: IndexPath) {
+        if let itemForDeleteion = self.todoItems?[indexPath.row] {
+            do {
+                try self.realm.write {
+                    self.realm.delete(itemForDeleteion)
+                }
+            } catch {
+                print("Error deleting item, \(error)")
+            }
+        }
     }
     
     //MARK -- Add New Items
