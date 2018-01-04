@@ -12,6 +12,9 @@ import ChameleonFramework
 
 class TodoListViewController: SwipeTableViewController {
 
+    
+    @IBOutlet weak var searchBar: UISearchBar!
+    
     //var itemArray = ["Find Mike", "Buy Eggos", "Destory Demogotgon"]
     var todoItems : Results<Item>?
     let realm = try! Realm()
@@ -25,10 +28,38 @@ class TodoListViewController: SwipeTableViewController {
     //let defaults = UserDefaults.standard
     override func viewDidLoad() {
         super.viewDidLoad()
-        let dataFilePath = FileManager.default.urls(for: .documentDirectory, in: .userDomainMask).first?.appendingPathComponent("Items.plist")
-        print(dataFilePath!)
+//        let dataFilePath = FileManager.default.urls(for: .documentDirectory, in: .userDomainMask).first?.appendingPathComponent("Items.plist")
+//        print(dataFilePath!)
         
         tableView.separatorStyle = .none
+        
+//        if let colourHex = selectedCategory?.bgColorHexString {
+//            // navigator still not yet ready >_<
+//            //guard let navBar = navigationController?.navigationBar else {fatalError("Navigator controller does not exit")}
+//            navigationController?.navigationBar.barTintColor = UIColor(hexString: colourHex)
+//        }
+//        //navigationController?.navigationBar.barTintColor = UIColor(hexString: (selectedCategory?.bgColorHexString)!)
+    }
+    
+    override func viewWillAppear(_ animated: Bool) {
+        title = selectedCategory?.name
+        guard let colourHex = selectedCategory?.bgColorHexString  else {fatalError()}
+        updateNavBar(withHexCode: colourHex)
+    }
+    
+    override func viewWillDisappear(_ animated: Bool) {
+         updateNavBar(withHexCode: "1D9BF6")
+    }
+    
+    //MARK: Nav Bar Setup Methods
+    
+    func updateNavBar(withHexCode colourHexCode: String) {
+        guard let navBar = navigationController?.navigationBar else {fatalError("Navigator controller does not exit")}
+        guard let navBarColour = UIColor(hexString: colourHexCode) else {fatalError()}
+        navBar.barTintColor = navBarColour
+        navBar.tintColor = ContrastColorOf(navBarColour, returnFlat: true)
+        navBar.largeTitleTextAttributes = [NSAttributedStringKey.foregroundColor : ContrastColorOf(navBarColour, returnFlat: true)]
+        searchBar.barTintColor = navBarColour
     }
     
     //MARK - TableView Datasource Methods
